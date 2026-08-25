@@ -1,0 +1,316 @@
+<!-- post2.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRDROP HUNTER'S PLAYBOOK — RO$</title>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=JetBrains+Mono:wght@400;700&display=swap'>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050010;--void-2:#0a0418;--panel:rgba(20,8,43,.6);--purple:#9d4edd;--purple-bright:#c77dff;--lime:#aaff00;--gold:#ffd700;--red:#ff3366;--ink:#f0e6ff;--ink-dim:#9d8db3;--ink-mute:#5d4f73;--line:rgba(157,78,221,.18);--line-bright:rgba(157,78,221,.4);--ease-quiet:cubic-bezier(.22,1,.36,1);--ease-precise:cubic-bezier(.4,0,.2,1)}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--ink);font-family:'VT323',monospace;font-size:20px;line-height:1.5;overflow-x:hidden;min-height:100vh;position:relative;padding-bottom:40px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(90,24,154,.35) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(157,78,221,.2) 0%,transparent 60%),linear-gradient(180deg,#050010 0%,#0a0418 50%,#0a0418 100%);z-index:-2;pointer-events:none}
+.scanlines{position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.18) 3px,rgba(0,0,0,0) 4px);pointer-events:none;z-index:9999;mix-blend-mode:multiply;animation:flicker .15s infinite}
+.crt-vignette{position:fixed;inset:0;pointer-events:none;z-index:9998;background:radial-gradient(ellipse 100% 100% at center,transparent 40%,rgba(0,0,0,.5) 100%)}
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:.97}}
+#particle-canvas{position:fixed;inset:0;z-index:-1;pointer-events:none}
+body,a,button,input{cursor:none}
+#cursor-dot{position:fixed;top:0;left:0;width:6px;height:6px;background:var(--lime);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);box-shadow:0 0 8px var(--lime),0 0 16px rgba(170,255,0,.4)}
+#cursor-ring{position:fixed;top:0;left:0;width:32px;height:32px;border:1px solid var(--purple-bright);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:transform .3s var(--ease-quiet),width .3s,height .3s,border-color .3s,background .3s}
+#cursor-ring.hover{width:56px;height:56px;border-color:var(--lime);background:rgba(170,255,0,.05)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.25rem 2rem;background:rgba(5,0,16,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem}
+.nav-logo{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--ink);text-decoration:none;letter-spacing:.05em}
+.nav-logo .bracket{color:var(--purple-bright)}.nav-logo .accent{color:var(--lime)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.15em;color:var(--ink-dim);text-decoration:none;text-transform:uppercase;transition:color .3s;padding:.25rem 0}
+.nav-links a::before{content:'> ';color:var(--purple);opacity:0;margin-right:-.5rem;transition:opacity .3s,margin-right .3s}
+.nav-links a:hover,.nav-links a.active{color:var(--lime)}
+.nav-links a:hover::before,.nav-links a.active::before{opacity:1;margin-right:0}
+.nav-status{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-dim);display:flex;align-items:center;gap:.5rem}
+.nav-status .dot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.nav-toggle{display:none;background:none;border:1px solid var(--line-bright);color:var(--ink);padding:.5rem .75rem;font-family:'JetBrains Mono',monospace;font-size:12px}
+.article-hero{padding:9rem 2rem 4rem;max-width:900px;margin:0 auto}
+.article-meta{display:flex;gap:1.5rem;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--purple-bright);text-transform:uppercase;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px dashed var(--line-bright)}
+.article-meta span{display:flex;align-items:center;gap:.4rem}
+.article-meta .lime{color:var(--lime)}
+.article-title{font-family:'Press Start 2P',monospace;font-size:clamp(22px,4vw,42px);line-height:1.4;margin-bottom:2rem;letter-spacing:.02em}
+.article-title .purple{color:var(--purple-bright)}.article-title .accent{color:var(--lime)}
+.article-excerpt{font-family:'VT323',monospace;font-size:26px;color:var(--ink-dim);line-height:1.5;max-width:740px;border-left:2px solid var(--lime);padding-left:1.5rem}
+.article-body{max-width:740px;margin:0 auto;padding:0 2rem 4rem;font-family:'VT323',monospace;font-size:22px;line-height:1.6;color:var(--ink)}
+.article-body p{margin-bottom:1.8rem;color:var(--ink)}
+.article-body h2{font-family:'Press Start 2P',monospace;font-size:18px;margin:3rem 0 1.5rem;color:var(--lime);letter-spacing:.02em;line-height:1.5}
+.article-body h2::before{content:'> ';color:var(--purple-bright)}
+.article-body h3{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--purple-bright);margin:2rem 0 1rem}
+.article-body strong{color:var(--lime);font-weight:normal}
+.article-body ul,.article-body ol{margin:0 0 1.8rem 1.5rem}
+.article-body li{margin-bottom:.6rem;color:var(--ink)}
+.article-body li::marker{color:var(--lime)}
+.callout{border:1px solid var(--line-bright);padding:1.5rem 1.5rem 1.5rem 3rem;margin:2rem 0;position:relative;background:rgba(157,78,221,.05)}
+.callout::before{content:'!';position:absolute;top:1.5rem;left:1rem;width:24px;height:24px;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:12px}
+.callout.info{border-color:var(--lime);color:var(--lime)}
+.callout.info::before{content:'i'}
+.callout strong{display:block;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:inherit}
+.callout p{margin:0;color:var(--ink);font-size:20px}
+.related{max-width:1400px;margin:0 auto;padding:4rem 2rem}
+.related-title{font-family:'Press Start 2P',monospace;font-size:18px;margin-bottom:3rem;color:var(--ink);letter-spacing:.02em}
+.related-title::before{content:'// ';color:var(--lime)}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem}
+.related-card{border:1px solid var(--line-bright);background:var(--panel);padding:1.5rem;text-decoration:none;color:var(--ink);transition:all .3s}
+.related-card:hover{border-color:var(--lime);transform:translateY(-3px)}
+.related-card h4{font-family:'Press Start 2P',monospace;font-size:13px;line-height:1.5;margin-bottom:1rem;color:var(--ink)}
+.related-card .meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-mute);letter-spacing:.15em;text-transform:uppercase;display:flex;justify-content:space-between}
+.related-card .meta .read{color:var(--lime)}
+.footer{border-top:1px solid var(--line);padding:4rem 2rem 2rem;background:rgba(5,0,16,.5)}
+.footer-inner{max-width:1400px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:1fr;gap:3rem;margin-bottom:3rem;max-width:400px}
+.footer-logo{font-family:'Press Start 2P',monospace;font-size:14px;margin-bottom:1rem}
+.footer-logo .accent{color:var(--lime)}
+.footer-desc{font-size:18px;color:var(--ink-dim);line-height:1.4;max-width:320px;font-family:'VT323',monospace}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:2rem;border-top:1px dashed var(--line);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;gap:1rem}
+.statusbar{position:fixed;bottom:0;left:0;right:0;background:rgba(5,0,16,.9);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:.5rem 2rem;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--ink-dim);text-transform:uppercase;z-index:99}
+.statusbar-left,.statusbar-right{display:flex;gap:1.5rem;align-items:center}
+.statusbar-item{display:flex;align-items:center;gap:.4rem}
+.statusbar-item .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 4px var(--lime)}
+@media(max-width:768px){.statusbar{font-size:9px;padding:.4rem 1rem}.statusbar-left,.statusbar-right{gap:.8rem}.statusbar-item.hide-mobile{display:none}.nav-links{display:none}.nav-status{display:none}.nav-toggle{display:block}.nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:rgba(5,0,16,.95);padding:1rem 2rem;gap:1rem;border-bottom:1px solid var(--line)}.article-hero{padding:7rem 1.5rem 3rem}.article-body{padding:0 1.5rem 3rem;font-size:20px}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 1s var(--ease-quiet),transform 1s var(--ease-quiet)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="crt-vignette"></div>
+<div class="scanlines"></div>
+<canvas id="particle-canvas"></canvas>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="bracket">[</span>RO<span class="accent">$</span><span class="bracket">]</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+    </ul>
+    <div class="nav-status"><span class="dot"></span><span>ONLINE</span></div>
+    <button class="nav-toggle" id="navToggle">MENU</button>
+  </div>
+</nav>
+
+<article>
+  <div class="article-hero">
+    <div class="article-meta">
+      <span>// POST_002.LOG</span>
+      <span class="lime">2026.01.15</span>
+      <span>12 MIN READ</span>
+      <span class="lime">// AIRDROPS</span>
+    </div>
+    <h1 class="article-title">THE AIRDROP<br><span class="purple">HUNTER'S</span> PLAYBOOK<span class="accent">.</span></h1>
+    <p class="article-excerpt">How to farm high-value crypto airdrops before the masses arrive. Wallets, sybil avoidance, and exit strategies.</p>
+  </div>
+
+  <div class="article-body">
+    <p>Airdrops remain one of the few "free money" opportunities in crypto—if you know how to position for them. While most users hear about airdrops after they've already happened, a small group of systematic farmers consistently captures five- and six-figure payouts by treating airdrop farming like a disciplined investment strategy. This guide breaks down the exact framework.</p>
+
+    <h2>What Makes an Airdrop Valuable?</h2>
+    <p>Not every token distribution is worth your time. Before committing capital and gas fees, evaluate potential airdrops on three criteria:</p>
+    <h3>1. Funding & Backing</h3>
+    <p>Projects backed by tier-1 venture capital firms (a16z, Paradigm, Polychain, etc.) have the capital to support token launches and liquidity. Unfunded projects rarely generate meaningful airdrop value.</p>
+    <h3>2. Narrative Fit</h3>
+    <p>Airdrops tied to dominant narratives—L2 scaling, restaking, AI infrastructure, DePIN—attract more speculative interest post-launch. A token in a hot sector will outperform an equally good project in a forgotten niche.</p>
+    <h3>3. Competitor Precedent</h3>
+    <p>If a direct competitor already did a large airdrop, the new project likely will too. They need to match market expectations to attract users. Study what Arbitrum did, then watch zkSync. Study what EigenLayer did, then watch every restaking protocol.</p>
+
+    <h2>The Airdrop Farming Stack</h2>
+    <h3>Wallets & Identity Management</h3>
+    <p>Never farm from a single wallet. Use a structured multi-wallet system:</p>
+    <ul>
+      <li><strong>Main wallet:</strong> Holds your core assets, minimal interaction with new protocols.</li>
+      <li><strong>Farming wallets (5–10+):</strong> Dedicated to specific ecosystems or protocols. If one gets blacklisted or sybil-filtered, your others survive.</li>
+      <li><strong>Hardware wallet integration:</strong> For any protocol requiring significant deposits, use a Ledger or Trezor. Hot wallets are for small-testnet interactions only.</li>
+    </ul>
+    <p>Use tools like Rabby Wallet for built-in security warnings and OneKey for multi-chain management.</p>
+    
+    <h3>On-Chain Activity Tracking</h3>
+    <p>Document every interaction. Create a master spreadsheet with columns for:</p>
+    <ul>
+      <li>Protocol name & chain</li>
+      <li>Wallet address used</li>
+      <li>Date of interaction</li>
+      <li>Type of interaction (swap, stake, bridge, LP, vote)</li>
+      <li>Volume/amount</li>
+      <li>Estimated points or eligibility status</li>
+    </ul>
+    <p>Protocols increasingly reward consistent usage over one-time whale deposits. A wallet that interacts weekly for six months often beats a wallet that deposited $50K once.</p>
+
+    <h2>High-Probability Airdrop Categories</h2>
+    <h3>1. Layer 2 Testnets & Mainnets</h3>
+    <p>New rollups need users to stress-test their networks. Early testnet participants frequently get rewarded when mainnet launches.</p>
+    <p><strong>Strategy:</strong></p>
+    <ul>
+      <li>Join official Discords and follow Twitter accounts for testnet announcements.</li>
+      <li>Use faucets daily. Some projects track faucet consistency as an engagement metric.</li>
+      <li>Perform the full user journey: bridge in, swap, provide liquidity, mint NFTs, bridge out.</li>
+      <li>Run a node or validator if technically capable. Node operators often receive disproportionate rewards.</li>
+    </ul>
+
+    <h3>2. Restaking & Liquid Staking Derivatives</h3>
+    <p>The restaking narrative exploded with EigenLayer, and dozens of competitors are launching. These protocols need Total Value Locked (TVL) to prove traction.</p>
+    <p><strong>Strategy:</strong></p>
+    <ul>
+      <li>Restake ETH through the native protocol.</li>
+      <li>Deposit into liquid restaking tokens (LRTs) and then use those LRTs in DeFi—double-dipping on points.</li>
+      <li>Refer friends through referral programs. Many restaking protocols weight referrals heavily in point calculations.</li>
+    </ul>
+
+    <h3>3. DeFi Protocols Pre-Token</h3>
+    <p>Any DeFi protocol without a token is a potential airdrop. The question is whether they'll launch one and how they'll distribute it.</p>
+    <p><strong>What to look for:</strong></p>
+    <ul>
+      <li>Anonymous founders with a history of token launches</li>
+      <li>Protocols that raised VC money but haven't launched a token yet</li>
+      <li>Governance forums where "token launch" is discussed</li>
+      <li>Competitors that already airdropped, creating pressure</li>
+    </ul>
+    <p><strong>Tactics:</strong></p>
+    <ul>
+      <li>Use the protocol as a real user would. Don't just deposit and leave—borrow, repay, swap, vote in governance if available.</li>
+      <li>Maintain activity over 3–6 months. Many airdrops retroactively reward long-term users.</li>
+      <li>Join guilds, Discord roles, and Galxe campaigns. On-chain activity + off-chain community participation often determines tiered rewards.</li>
+    </ul>
+
+    <h3>4. NFT & Gaming Ecosystems</h3>
+    <p>Play-to-earn and NFT platforms increasingly airdrop tokens to holders, players, and early community members.</p>
+    <p><strong>Strategy:</strong></p>
+    <ul>
+      <li>Hold ecosystem NFTs that grant "founder" status or early access.</li>
+      <li>Play beta versions of games and reach leaderboard milestones.</li>
+      <li>Participate in governance and Discord voting.</li>
+    </ul>
+
+    <h2>Avoiding Sybil Detection</h2>
+    <p>Projects hate airdrop farmers. They deploy sophisticated sybil detection to filter out multi-accounters. Here's how to stay under the radar:</p>
+    <h3>1. Unique Funding Paths</h3>
+    <p>Never fund multiple farming wallets from the same exchange withdrawal or main wallet. Use:</p>
+    <ul>
+      <li>Different CEX accounts (Binance, Coinbase, OKX)</li>
+      <li>Cross-chain bridges from different source chains</li>
+      <li>Privacy-preserving tools like Tornado Cash alternatives (where legal) or Railgun</li>
+      <li>OTC acquisitions of small amounts of native gas tokens</li>
+    </ul>
+    <h3>2. Behavioral Variation</h3>
+    <p>If all your wallets perform the exact same sequence of transactions at the same time, you're flagged. Vary:</p>
+    <ul>
+      <li>Transaction timing (spread across days/weeks)</li>
+      <li>Transaction amounts</li>
+      <li>Interaction sequences (swap first vs. stake first)</li>
+      <li>Protocols used within the ecosystem</li>
+    </ul>
+    <h3>3. Social Identity Separation</h3>
+    <p>Use different emails, Discord accounts, and Twitter profiles for high-value farming operations. Some projects cross-reference social graphs with on-chain data.</p>
+
+    <h2>Timing Your Exit</h2>
+    <p>Receiving an airdrop is only half the battle. Most airdropped tokens dump 50–80% in the first week.</p>
+    <p><strong>The Immediate Sell (80% rule)</strong><br>For most airdrops, sell 80% within the first 24 hours. Take the profit and redeploy into the next farm. The remaining 20% is your "moonbag"—held for 3–12 months in case the project becomes a category leader.</p>
+    <p><strong>The Tiered Exit</strong><br>For high-conviction projects, use a tiered approach:</p>
+    <ul>
+      <li>25% at TGE (Token Generation Event)</li>
+      <li>25% at 2x from TGE price</li>
+      <li>25% at 5x</li>
+      <li>25% held indefinitely</li>
+    </ul>
+    <p><strong>The "Stake & Forget"</strong><br>Some airdrops come with staking incentives. If the project has genuine traction and you believe in the 2+ year outlook, stake the airdrop for yield rather than selling.</p>
+
+    <h2>Tools of the Trade</h2>
+    <ul>
+      <li><strong>DefiLlama:</strong> Track protocol TVL and funding rounds</li>
+      <li><strong>Dune Analytics:</strong> Query on-chain data for airdrop criteria</li>
+      <li><strong>Layer3, Galxe, Zealy:</strong> Complete quests and track off-chain activity</li>
+      <li><strong>Arkham, Nansen:</strong> Wallet labeling and smart money tracking</li>
+      <li><strong>Revoke.cash:</strong> Clean up token approvals after farming</li>
+    </ul>
+
+    <div class="callout info">
+      <strong>FINAL DISPATCH</strong>
+      <p>Airdrop farming is a volume game. Most farms yield nothing. Some yield a few hundred dollars. A handful change your financial trajectory. The key is treating it as a portfolio strategy: farm 20+ protocols systematically, document everything, and let probability work in your favor. The users who treat airdrops as a serious discipline—not a lottery—are the ones who consistently win.</p>
+    </div>
+  </div>
+</article>
+
+<section class="related">
+  <h2 class="related-title">RELATED DISPATCHES</h2>
+  <div class="related-grid">
+    <a href="post1.html" class="related-card">
+      <h4>The Complete Guide to Memecoin Trading</h4>
+      <div class="meta"><span>2026.01.18</span><span class="read">15 MIN</span></div>
+    </a>
+    <a href="post3.html" class="related-card">
+      <h4>On-Chain Intelligence</h4>
+      <div class="meta"><span>2026.01.12</span><span class="read">15 MIN</span></div>
+    </a>
+    <a href="post4.html" class="related-card">
+      <h4>The Trader's Mind</h4>
+      <div class="meta"><span>2026.01.09</span><span class="read">10 MIN</span></div>
+    </a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">RO<span class="accent">$</span></div>
+        <p class="footer-desc">A field guide to on-chain wealth. Documented plays, missed calls, and hard-won lessons from the Solana trenches.</p>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 RO$ — ALL RIGHTS RESERVED</span><span>v2.4.7 — LAST BUILD: 2026.01.18</span></div>
+  </div>
+</footer>
+
+<div class="statusbar">
+  <div class="statusbar-left">
+    <span class="statusbar-item"><span class="dot"></span> CONNECTED</span>
+    <span class="statusbar-item hide-mobile">POST_002.LOG</span>
+    <span class="statusbar-item hide-mobile">READ: 12 MIN</span>
+  </div>
+  <div class="statusbar-right">
+    <span class="statusbar-item hide-mobile">UTF-8</span>
+    <span class="statusbar-item" id="clock">00:00:00 UTC</span>
+  </div>
+</div>
+
+<script>
+const dot=document.getElementById('cursor-dot');const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;});
+(function tick(){rx+=(mx-rx)*0.15;ry+=(my-ry)*0.15;ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(tick);})();
+document.querySelectorAll('a,button,input').forEach(el=>{el.addEventListener('mouseenter',()=>ring.classList.add('hover'));el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));});
+document.addEventListener('mousedown',()=>ring.classList.add('click'));document.addEventListener('mouseup',()=>ring.classList.remove('click'));
+
+const canvas=document.getElementById('particle-canvas');const ctx=canvas.getContext('2d');
+let particles=[];let mouseX=0,mouseY=0;let cw=0,ch=0;
+function resizeCanvas(){cw=window.innerWidth;ch=window.innerHeight;canvas.width=cw;canvas.height=ch;}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+const PCOUNT=window.innerWidth<768?50:100;
+const PCOLORS=['rgba(157, 78, 221, 0.7)','rgba(199, 125, 255, 0.5)','rgba(170, 255, 0, 0.4)'];
+function initParticles(){particles=[];for(let i=0;i<PCOUNT;i++){particles.push({x:Math.random()*cw,y:Math.random()*ch,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.8+0.4,a:Math.random()*0.5+0.2,color:PCOLORS[Math.floor(Math.random()*PCOLORS.length)],phase:Math.random()*Math.PI*2});}}
+initParticles();let time=0;
+function animateParticles(){ctx.clearRect(0,0,cw,ch);time+=0.01;particles.forEach(p=>{const dx=mouseX-p.x;const dy=mouseY-p.y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){p.vx+=(dx/dist)*0.02;p.vy+=(dy/dist)*0.02;}p.vx*=0.98;p.vy*=0.98;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cw;if(p.x>cw)p.x=0;if(p.y<0)p.y=ch;if(p.y>ch)p.y=0;const alpha=p.a*(0.5+0.5*Math.sin(time+p.phase));ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color.replace(/[\d.]+\)$/g,alpha+')');ctx.fill();});for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){const dx=particles[i].x-particles[j].x;const dy=particles[i].y-particles[j].y;const d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(157, 78, 221, ${(1-d/100)*0.15})`;ctx.lineWidth=0.5;ctx.stroke();}}}requestAnimationFrame(animateParticles);}
+animateParticles();window.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
+
+const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in');}});},{threshold:0.1,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.article-hero,.article-body,.related-card').forEach(el=>{el.classList.add('reveal');observer.observe(el);});
+
+function updateClock(){const now=new Date();const utc=now.toISOString().substring(11,19);document.getElementById('clock').textContent=utc+' UTC';}
+setInterval(updateClock,1000);updateClock();
+const navToggle=document.getElementById('navToggle');const navLinks=document.getElementById('navLinks');
+navToggle.addEventListener('click',()=>navLinks.classList.toggle('open'));
+if('ontouchstart' in window){dot.style.display='none';ring.style.display='none';document.body.style.cursor='auto';document.querySelectorAll('a,button,input').forEach(el=>el.style.cursor='auto');}
+</script>
+</body>
+</html>
