@@ -1,0 +1,374 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RO$ — // terminal blog</title>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=JetBrains+Mono:wght@400;700&display=swap'>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050010;--void-2:#0a0418;--panel:rgba(20,8,43,.6);--purple:#9d4edd;--purple-bright:#c77dff;--lime:#aaff00;--gold:#ffd700;--red:#ff3366;--ink:#f0e6ff;--ink-dim:#9d8db3;--ink-mute:#5d4f73;--line:rgba(157,78,221,.18);--line-bright:rgba(157,78,221,.4);--ease-quiet:cubic-bezier(.22,1,.36,1);--ease-precise:cubic-bezier(.4,0,.2,1)}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--ink);font-family:'VT323',monospace;font-size:20px;line-height:1.4;overflow-x:hidden;min-height:100vh;position:relative}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(90,24,154,.35) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(157,78,221,.2) 0%,transparent 60%),linear-gradient(180deg,#050010 0%,#0a0418 50%,#0a0418 100%);z-index:-2;pointer-events:none}
+.scanlines{position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.18) 3px,rgba(0,0,0,0) 4px);pointer-events:none;z-index:9999;mix-blend-mode:multiply;animation:flicker .15s infinite}
+.crt-vignette{position:fixed;inset:0;pointer-events:none;z-index:9998;background:radial-gradient(ellipse 100% 100% at center,transparent 40%,rgba(0,0,0,.5) 100%)}
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:.97}}
+#particle-canvas{position:fixed;inset:0;z-index:-1;pointer-events:none}
+body,a,button,input,[role="button"]{cursor:none}
+#cursor-dot{position:fixed;top:0;left:0;width:6px;height:6px;background:var(--lime);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);box-shadow:0 0 8px var(--lime),0 0 16px rgba(170,255,0,.4)}
+#cursor-ring{position:fixed;top:0;left:0;width:32px;height:32px;border:1px solid var(--purple-bright);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:transform .3s var(--ease-quiet),width .3s,height .3s,border-color .3s,background .3s}
+#cursor-ring.hover{width:56px;height:56px;border-color:var(--lime);background:rgba(170,255,0,.05)}
+.boot{position:fixed;inset:0;background:var(--void);z-index:10001;padding:4rem 2rem;font-family:'VT323',monospace;font-size:22px;color:var(--lime);overflow:hidden;transition:opacity .8s var(--ease-quiet),visibility .8s}
+.boot.done{opacity:0;visibility:hidden}
+.boot-line{margin-bottom:.4rem;opacity:0;transform:translateX(-10px);transition:opacity .2s,transform .2s}
+.boot-line.show{opacity:1;transform:translateX(0)}
+.boot-prompt{margin-top:2rem;color:var(--purple-bright);opacity:0;transition:opacity .2s}
+.boot-prompt.show{opacity:1}
+.boot-prompt::after{content:'_';animation:blink .8s infinite}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.25rem 2rem;background:rgba(5,0,16,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem}
+.nav-logo{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--ink);text-decoration:none;letter-spacing:.05em}
+.nav-logo .bracket{color:var(--purple-bright)}.nav-logo .accent{color:var(--lime)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.15em;color:var(--ink-dim);text-decoration:none;text-transform:uppercase;transition:color .3s;padding:.25rem 0}
+.nav-links a::before{content:'> ';color:var(--purple);opacity:0;margin-right:-.5rem;transition:opacity .3s,margin-right .3s}
+.nav-links a:hover,.nav-links a.active{color:var(--lime)}
+.nav-links a:hover::before,.nav-links a.active::before{opacity:1;margin-right:0}
+.nav-status{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-dim);display:flex;align-items:center;gap:.5rem}
+.nav-status .dot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.nav-toggle{display:none;background:none;border:1px solid var(--line-bright);color:var(--ink);padding:.5rem .75rem;font-family:'JetBrains Mono',monospace;font-size:12px}
+.hero{padding:10rem 2rem 6rem;max-width:1400px;margin:0 auto}
+.hero-label{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.25em;color:var(--lime);text-transform:uppercase;margin-bottom:2rem;display:flex;align-items:center;gap:1rem}
+.hero-label::before{content:'';width:40px;height:1px;background:var(--lime)}
+.hero-title{font-family:'Press Start 2P',monospace;font-size:clamp(28px,6vw,64px);line-height:1.2;color:var(--ink);margin-bottom:2rem;letter-spacing:.02em}
+.hero-title .accent{color:var(--lime)}.hero-title .purple{color:var(--purple-bright)}
+.hero-subtitle{font-family:'VT323',monospace;font-size:28px;color:var(--ink-dim);max-width:680px;margin-bottom:3rem;line-height:1.4}
+.hero-subtitle::before{content:'$ ';color:var(--lime)}
+.hero-cta{display:flex;gap:1.5rem;flex-wrap:wrap}
+.btn{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:1rem 2rem;text-decoration:none;border:1px solid var(--line-bright);background:transparent;color:var(--ink);transition:all .3s var(--ease-precise);display:inline-flex;align-items:center;gap:.75rem}
+.btn::before{content:'[';color:var(--purple-bright)}.btn::after{content:']';color:var(--purple-bright)}
+.btn:hover{border-color:var(--lime);color:var(--lime);background:rgba(170,255,0,.05)}
+.btn:hover::before,.btn:hover::after{color:var(--lime)}
+.btn-primary{border-color:var(--lime);color:var(--lime);background:rgba(170,255,0,.05)}
+.btn-primary::before,.btn-primary::after{color:var(--lime)}
+section{padding:6rem 2rem;max-width:1400px;margin:0 auto}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.25em;color:var(--purple-bright);text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem}
+.section-label::before{content:'//';color:var(--lime)}
+.section-title{font-family:'Press Start 2P',monospace;font-size:clamp(20px,3.5vw,36px);line-height:1.3;margin-bottom:4rem;letter-spacing:.02em;max-width:900px}
+.bio-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+@media(max-width:900px){.bio-grid{grid-template-columns:1fr;gap:2rem}}
+.bio-portrait{border:1px solid var(--line-bright);background:var(--panel);padding:2rem;aspect-ratio:1;display:flex;flex-direction:column;justify-content:space-between;backdrop-filter:blur(8px);position:relative}
+.bio-ascii{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--purple-bright);white-space:pre;line-height:1.3;text-align:center}
+.bio-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--lime);letter-spacing:.15em;text-transform:uppercase;display:flex;justify-content:space-between}
+.bio-text p{font-size:22px;color:var(--ink);line-height:1.5;margin-bottom:1.5rem;font-family:'VT323',monospace}
+.bio-text p.dim{color:var(--ink-dim)}
+.bio-text strong{color:var(--lime);font-weight:normal}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:3rem}
+@media(max-width:768px){.two-col{grid-template-columns:1fr}}
+.col-panel{border:1px solid var(--line-bright);background:var(--panel);padding:2.5rem;backdrop-filter:blur(8px)}
+.col-panel h3{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--lime);margin-bottom:1.5rem;letter-spacing:.02em;line-height:1.5}
+.col-panel h3::before{content:'> ';color:var(--purple-bright)}
+.col-panel ul{list-style:none}
+.col-panel li{font-size:20px;color:var(--ink-dim);padding:.6rem 0 .6rem 1.5rem;border-bottom:1px dotted rgba(157,78,221,.1);position:relative;font-family:'VT323',monospace;line-height:1.4}
+.col-panel li::before{content:'■';color:var(--lime);position:absolute;left:0;font-size:10px;top:.8rem}
+.col-panel li:last-child{border-bottom:none}
+.col-panel.is h3{color:var(--lime)}
+.col-panel.isnt h3{color:var(--red)}
+.col-panel.isnt li::before{color:var(--red)}
+.faq-item{border:1px solid var(--line-bright);background:var(--panel);margin-bottom:1rem;backdrop-filter:blur(8px);transition:border-color .3s;overflow:hidden}
+.faq-item.open{border-color:var(--lime)}
+.faq-question{padding:1.5rem 2rem;font-family:'VT323',monospace;font-size:22px;color:var(--ink);cursor:none;display:flex;justify-content:space-between;align-items:center;background:none;border:none;width:100%;text-align:left}
+.faq-question::before{content:'> ';color:var(--purple-bright)}
+.faq-question .toggle{color:var(--lime);font-family:'JetBrains Mono',monospace;font-size:14px}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .4s var(--ease-quiet),padding .4s var(--ease-quiet);padding:0 2rem}
+.faq-item.open .faq-answer{max-height:400px;padding:0 2rem 1.5rem}
+.faq-answer p{color:var(--ink-dim);font-size:20px;line-height:1.5;font-family:'VT323',monospace}
+.posts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
+.post-card{border:1px solid var(--line-bright);background:var(--panel);position:relative;transition:all .4s var(--ease-quiet);text-decoration:none;color:var(--ink);display:flex;flex-direction:column;overflow:hidden;backdrop-filter:blur(8px)}
+.post-card::before,.post-card::after{content:'';position:absolute;width:12px;height:12px;border:1px solid var(--lime);opacity:0;transition:opacity .4s}
+.post-card::before{top:8px;left:8px;border-right:none;border-bottom:none}
+.post-card::after{bottom:8px;right:8px;border-left:none;border-top:none}
+.post-card:hover{border-color:var(--lime);transform:translateY(-4px);box-shadow:0 8px 30px rgba(170,255,0,.1)}
+.post-card:hover::before,.post-card:hover::after{opacity:1}
+.post-card-header{padding:.75rem 1.25rem;border-bottom:1px dashed var(--line-bright);display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--purple-bright);text-transform:uppercase;background:rgba(157,78,221,.05)}
+.post-card-body{padding:2rem 1.5rem;flex:1;display:flex;flex-direction:column}
+.post-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--lime);text-transform:uppercase;padding:.25rem .5rem;border:1px solid var(--lime);margin-bottom:1.5rem;align-self:flex-start}
+.post-card h3{font-family:'Press Start 2P',monospace;font-size:15px;line-height:1.6;margin-bottom:1.5rem;color:var(--ink);letter-spacing:.02em}
+.post-card p{font-family:'VT323',monospace;font-size:20px;color:var(--ink-dim);line-height:1.4;flex:1;margin-bottom:1.5rem}
+.post-card-footer{display:flex;justify-content:space-between;align-items:center;padding-top:1rem;border-top:1px dotted var(--line);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute)}
+.post-card-footer .read{color:var(--lime)}
+.post-card-footer .read::before{content:'> '}
+.newsletter{border:1px solid var(--line-bright);background:var(--panel);padding:3rem;position:relative;backdrop-filter:blur(8px)}
+.newsletter-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:1.5rem;margin-bottom:2rem;border-bottom:1px dashed var(--line-bright);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--purple-bright);text-transform:uppercase}
+.newsletter h3{font-family:'Press Start 2P',monospace;font-size:18px;margin-bottom:1rem;line-height:1.5}
+.newsletter p{font-size:20px;color:var(--ink-dim);margin-bottom:2rem;font-family:'VT323',monospace}
+.newsletter-form{display:flex;gap:1rem;align-items:stretch;flex-wrap:wrap}
+.newsletter-input{flex:1;min-width:240px;background:rgba(5,0,16,.5);border:1px solid var(--line-bright);color:var(--lime);padding:1rem 1.5rem;font-family:'VT323',monospace;font-size:22px;outline:none;transition:border-color .3s}
+.newsletter-input::placeholder{color:var(--ink-mute)}
+.newsletter-input:focus{border-color:var(--lime)}
+.footer{border-top:1px solid var(--line);padding:4rem 2rem 2rem;background:rgba(5,0,16,.5)}
+.footer-inner{max-width:1400px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:1fr;gap:3rem;margin-bottom:3rem;max-width:400px}
+.footer-logo{font-family:'Press Start 2P',monospace;font-size:14px;margin-bottom:1rem}
+.footer-logo .accent{color:var(--lime)}
+.footer-desc{font-size:18px;color:var(--ink-dim);line-height:1.4;max-width:320px;font-family:'VT323',monospace}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:2rem;border-top:1px dashed var(--line);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;gap:1rem}
+.statusbar{position:fixed;bottom:0;left:0;right:0;background:rgba(5,0,16,.9);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:.5rem 2rem;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--ink-dim);text-transform:uppercase;z-index:99}
+.statusbar-left,.statusbar-right{display:flex;gap:1.5rem;align-items:center}
+.statusbar-item{display:flex;align-items:center;gap:.4rem}
+.statusbar-item .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 4px var(--lime)}
+@media(max-width:768px){.statusbar{font-size:9px;padding:.4rem 1rem}.statusbar-left,.statusbar-right{gap:.8rem}.statusbar-item.hide-mobile{display:none}.nav-links{display:none}.nav-status{display:none}.nav-toggle{display:block}.nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:rgba(5,0,16,.95);padding:1rem 2rem;gap:1rem;border-bottom:1px solid var(--line)}.hero{padding:8rem 1.5rem 4rem}section{padding:4rem 1.5rem}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 1s var(--ease-quiet),transform 1s var(--ease-quiet)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="crt-vignette"></div>
+<div class="scanlines"></div>
+<canvas id="particle-canvas"></canvas>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<div class="boot" id="boot">
+  <div class="boot-line">RO$ OS v2.4.7 — Copyright (c) 2026</div>
+  <div class="boot-line">Initializing kernel.................<span style="color:var(--lime)">[OK]</span></div>
+  <div class="boot-line">Mounting /dev/wallet.................<span style="color:var(--lime)">[OK]</span></div>
+  <div class="boot-line">Decrypting on-chain data.............<span style="color:var(--lime)">[OK]</span></div>
+  <div class="boot-line">Establishing RPC: SOL-MAINNET........<span style="color:var(--lime)">[OK]</span></div>
+  <div class="boot-line">Loading blog archive (4 entries).....<span style="color:var(--lime)">[OK]</span></div>
+  <div class="boot-line" style="margin-top:1rem;color:var(--purple-bright)">Welcome, operator. The terminal is yours.</div>
+  <div class="boot-prompt" id="bootPrompt">Press any key to continue_</div>
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="bracket">[</span>RO<span class="accent">$</span><span class="bracket">]</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+    </ul>
+    <div class="nav-status"><span class="dot"></span><span>ONLINE</span></div>
+    <button class="nav-toggle" id="navToggle">MENU</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-label"><span>// terminal blog — vol. 004</span></div>
+  <h1 class="hero-title">RICH OFF<br><span class="purple">$OLANA</span><span class="accent">_</span></h1>
+  <p class="hero-subtitle">a field guide to on-chain wealth — documented plays, missed calls, and hard-won lessons from the Solana trenches. no courses. no shilling. just signal.</p>
+  <div class="hero-cta">
+    <a href="blog.html" class="btn btn-primary">Read the blog</a>
+    <a href="#about" class="btn">About the operator</a>
+  </div>
+</section>
+
+<section id="about">
+  <div class="section-label"><span>// operator_profile.txt</span></div>
+  <h2 class="section-title">ABOUT THE OPERATOR_</h2>
+  <div class="bio-grid">
+    <div class="bio-portrait">
+      <div class="bio-label"><span>// PROFILE.dat</span><span>047</span></div>
+      <div class="bio-ascii">   ┌────────────┐
+   │   /\___/\   │
+   │  ( o o )   │
+   │  (  =  )   │
+   │   (___)    │
+   │   |   |    │
+   └────────────┘
+   // OPERATOR</div>
+      <div class="bio-label"><span>SINCE: 2021</span><span>● ACTIVE</span></div>
+    </div>
+    <div class="bio-text">
+      <p>I'm <strong>anonymous</strong>. Not because I'm hiding — because the work matters more than the person doing it. If my real name were on this blog, half of you would DM me asking for the next call instead of reading the guides.</p>
+      <p class="dim">I've been on Solana since 2021. Started like everyone else: a Phantom wallet, a small bag of SOL, and a misplaced confidence that I knew what I was doing. Three blown accounts later, I started writing things down. This blog is the result.</p>
+      <p class="dim">No paid telegram. No premium tier. No "DM me for signals". <strong>If anyone messages you claiming to be me, they're not me.</strong></p>
+    </div>
+  </div>
+  
+  <div class="two-col">
+    <div class="col-panel is">
+      <h3>WHAT THIS IS</h3>
+      <ul>
+        <li>A documentation practice made public</li>
+        <li>An honest log of calls, wins, and misses</li>
+        <li>A field guide for new operators</li>
+        <li>Free, forever, no paywall</li>
+        <li>Written by someone in the trenches</li>
+        <li>Updated weekly, sometimes daily</li>
+      </ul>
+    </div>
+    <div class="col-panel isnt">
+      <h3>WHAT THIS ISN'T</h3>
+      <ul>
+        <li>A signal group or call service</li>
+        <li>Financial advice or fiduciary service</li>
+        <li>A shill platform for bags I hold</li>
+        <li>A funnel to a paid course</li>
+        <li>A pump group or coordination</li>
+        <li>A place to DM me for "the next 100x"</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-label"><span>// faq.sh</span></div>
+  <h2 class="section-title">Frequently asked.</h2>
+  <div class="faq">
+    <div class="faq-item">
+      <button class="faq-question">Are you ever going to reveal your identity?<span class="toggle">[+]</span></button>
+      <div class="faq-answer"><p>No. The whole point is that the work stands on its own. If I do this right, you shouldn't care who I am. You should care whether the analysis is sound, the rules are tested, and the documentation is honest. I think it is. If you disagree, that's fine too.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">Can I pay you for private signals?<span class="toggle">[+]</span></button>
+      <div class="faq-answer"><p>No. Not now, not ever. The moment I sell signals, I have an incentive to inflate my win rate, hide my misses, and pump the things I'm holding. The only way to stay honest is to have nothing to sell except the writing itself.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">Do you hold the coins you write about?<span class="toggle">[+]</span></button>
+      <div class="faq-answer"><p>Sometimes. When I do, I disclose it at the top of the post. When I'm writing about a coin I used to hold but sold, I disclose that too. The rule is simple: if I have any position, you know about it before the second paragraph.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">Why Solana specifically?<span class="toggle">[+]</span></button>
+      <div class="faq-answer"><p>Speed, fees, and the fact that the on-chain data is actually readable. Ethereum is where the money is, but Solana is where the action is for the kind of trading I do. I still have bags on ETH — I just don't write about them here.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">How do I know your win rate is real?<span class="toggle">[+]</span></button>
+      <div class="faq-answer"><p>You don't, fully. I post every call on-chain before I post it here, with a timestamped signature. You can verify against the chain. If I ever fudge a number, you'll find out within an hour. That's the whole point of doing this on Solana instead of on a private blog.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">How can I support the blog?<span class="toggle">[+]</span></button>
+      <div class="faq-answer"><p>Read it. Share it. Link to it from wherever you lurk. If a post helped you, send it to someone it might help next. That's it. No donations, no tips, no "buy me a coffee" link. The reward for writing is being read.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-label"><span>recent dispatches</span></div>
+  <h2 class="section-title">Latest from the trenches.</h2>
+  <div class="posts-grid">
+    <a href="post1.html" class="post-card">
+      <div class="post-card-header"><span>POST_001.LOG</span><span>2026.01.18</span></div>
+      <div class="post-card-body">
+        <span class="post-tag">// MEMECOINS</span>
+        <h3>The Complete Guide to Memecoin Trading</h3>
+        <p>A strategic framework for spotting opportunities, filtering scams, and building a real-time trading command center.</p>
+        <div class="post-card-footer"><span>15 MIN READ</span><span class="read">READ</span></div>
+      </div>
+    </a>
+    <a href="post2.html" class="post-card">
+      <div class="post-card-header"><span>POST_002.LOG</span><span>2026.01.15</span></div>
+      <div class="post-card-body">
+        <span class="post-tag">// AIRDROPS</span>
+        <h3>The Airdrop Hunter's Playbook</h3>
+        <p>How to farm high-value crypto airdrops before the masses arrive. Wallets, sybil avoidance, and exit strategies.</p>
+        <div class="post-card-footer"><span>12 MIN READ</span><span class="read">READ</span></div>
+      </div>
+    </a>
+    <a href="post3.html" class="post-card">
+      <div class="post-card-header"><span>POST_003.LOG</span><span>2026.01.12</span></div>
+      <div class="post-card-body">
+        <span class="post-tag">// ON-CHAIN</span>
+        <h3>On-Chain Intelligence</h3>
+        <p>How to read the blockchain like a pro and find alpha before Twitter does. Wallet clustering, whale watching, and MEV.</p>
+        <div class="post-card-footer"><span>15 MIN READ</span><span class="read">READ</span></div>
+      </div>
+    </a>
+    <a href="post4.html" class="post-card">
+      <div class="post-card-header"><span>POST_004.LOG</span><span>2026.01.09</span></div>
+      <div class="post-card-body">
+        <span class="post-tag">// PSYCHOLOGY</span>
+        <h3>The Trader's Mind</h3>
+        <p>Mental models and psychological discipline for consistent crypto profits. Risk management, FOMO, and expected value.</p>
+        <div class="post-card-footer"><span>10 MIN READ</span><span class="read">READ</span></div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<section>
+  <div class="newsletter">
+    <div class="newsletter-header"><span>// subscribe.sh</span><span>● ENCRYPTED</span></div>
+    <h3>Join the dispatch.</h3>
+    <p>One signal per week. Maybe two. Never more. Unsubscribe by replying with the word "exit".</p>
+    <form class="newsletter-form" id="newsletterForm">
+      <input type="text" class="newsletter-input" placeholder="root@ros:~$ enter handle or email..." id="newsletterInput">
+      <button type="submit" class="btn btn-primary">Execute</button>
+    </form>
+    <div id="newsletterMsg" style="margin-top:1rem;color:var(--lime);font-size:20px;display:none;font-family:'VT323',monospace"></div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">RO<span class="accent">$</span></div>
+        <p class="footer-desc">A field guide to on-chain wealth. Documented plays, missed calls, and hard-won lessons from the Solana trenches.</p>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 RO$ — ALL RIGHTS RESERVED</span><span>v2.4.7 — LAST BUILD: 2026.01.18</span></div>
+  </div>
+</footer>
+
+<div class="statusbar">
+  <div class="statusbar-left">
+    <span class="statusbar-item"><span class="dot"></span> CONNECTED</span>
+    <span class="statusbar-item hide-mobile">SOL-MAINNET</span>
+  </div>
+  <div class="statusbar-right">
+    <span class="statusbar-item hide-mobile">UTF-8</span>
+    <span class="statusbar-item" id="clock">00:00:00 UTC</span>
+  </div>
+</div>
+
+<script>
+const boot=document.getElementById('boot');const bootLines=boot.querySelectorAll('.boot-line');const bootPrompt=document.getElementById('bootPrompt');
+let bootIdx=0;let bootDone=false;
+function showBootLine(){if(bootIdx<bootLines.length){bootLines[bootIdx].classList.add('show');bootIdx++;setTimeout(showBootLine,180+Math.random()*120);}else{setTimeout(()=>bootPrompt.classList.add('show'),300);setTimeout(dismissBoot,1800);}}
+setTimeout(showBootLine,300);
+function dismissBoot(){if(bootDone)return;bootDone=true;boot.classList.add('done');startHero();}
+document.addEventListener('keydown',dismissBoot);document.addEventListener('click',dismissBoot);
+
+function startHero(){const els=document.querySelectorAll('.hero-label,.hero-title,.hero-subtitle,.hero-cta');els.forEach((el,i)=>{el.style.opacity='0';el.style.transform='translateY(40px)';el.style.transition='opacity 1s cubic-bezier(.22,1,.36,1), transform 1s cubic-bezier(.22,1,.36,1)';setTimeout(()=>{el.style.opacity='1';el.style.transform='none';},200+i*180);});}
+
+const dot=document.getElementById('cursor-dot');const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;});
+(function tick(){rx+=(mx-rx)*0.15;ry+=(my-ry)*0.15;ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(tick);})();
+document.querySelectorAll('a,button,input,[role="button"]').forEach(el=>{el.addEventListener('mouseenter',()=>ring.classList.add('hover'));el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));});
+document.addEventListener('mousedown',()=>ring.classList.add('click'));document.addEventListener('mouseup',()=>ring.classList.remove('click'));
+
+const canvas=document.getElementById('particle-canvas');const ctx=canvas.getContext('2d');
+let particles=[];let mouseX=0,mouseY=0;let cw=0,ch=0;
+function resizeCanvas(){cw=window.innerWidth;ch=window.innerHeight;canvas.width=cw;canvas.height=ch;}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+const PCOUNT=window.innerWidth<768?60:120;
+const PCOLORS=['rgba(157, 78, 221, 0.7)','rgba(199, 125, 255, 0.5)','rgba(170, 255, 0, 0.4)'];
+function initParticles(){particles=[];for(let i=0;i<PCOUNT;i++){particles.push({x:Math.random()*cw,y:Math.random()*ch,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.8+0.4,a:Math.random()*0.5+0.2,color:PCOLORS[Math.floor(Math.random()*PCOLORS.length)],phase:Math.random()*Math.PI*2});}}
+initParticles();let time=0;
+function animateParticles(){ctx.clearRect(0,0,cw,ch);time+=0.01;particles.forEach(p=>{const dx=mouseX-p.x;const dy=mouseY-p.y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){p.vx+=(dx/dist)*0.02;p.vy+=(dy/dist)*0.02;}p.vx*=0.98;p.vy*=0.98;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cw;if(p.x>cw)p.x=0;if(p.y<0)p.y=ch;if(p.y>ch)p.y=0;const alpha=p.a*(0.5+0.5*Math.sin(time+p.phase));ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color.replace(/[\d.]+\)$/g,alpha+')');ctx.fill();});for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){const dx=particles[i].x-particles[j].x;const dy=particles[i].y-particles[j].y;const d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(157, 78, 221, ${(1-d/100)*0.15})`;ctx.lineWidth=0.5;ctx.stroke();}}}requestAnimationFrame(animateParticles);}
+animateParticles();window.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
+
+const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in');}});},{threshold:0.15,rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.bio-portrait,.bio-text,.col-panel,.faq-item,.post-card,.newsletter').forEach(el=>{el.classList.add('reveal');observer.observe(el);});
+
+document.querySelectorAll('.faq-question').forEach(q=>{q.addEventListener('click',()=>{const item=q.parentElement;const wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>{i.classList.remove('open');i.querySelector('.toggle').textContent='[+]';});if(!wasOpen){item.classList.add('open');q.querySelector('.toggle').textContent='[-]';}});});
+
+const newsletterForm=document.getElementById('newsletterForm');const newsletterInput=document.getElementById('newsletterInput');const newsletterMsg=document.getElementById('newsletterMsg');
+newsletterForm.addEventListener('submit',e=>{e.preventDefault();const val=newsletterInput.value.trim();if(!val){newsletterMsg.textContent='> ERROR: no input detected. try again.';newsletterMsg.style.color='var(--red)';}else{newsletterMsg.textContent=`> SIGNAL RECEIVED. welcome, ${val}. check your inbox.`;newsletterMsg.style.color='var(--lime)';newsletterInput.value='';}newsletterMsg.style.display='block';});
+
+function updateClock(){const now=new Date();const utc=now.toISOString().substring(11,19);document.getElementById('clock').textContent=utc+' UTC';}
+setInterval(updateClock,1000);updateClock();
+const navToggle=document.getElementById('navToggle');const navLinks=document.getElementById('navLinks');
+navToggle.addEventListener('click',()=>navLinks.classList.toggle('open'));
+if('ontouchstart' in window){dot.style.display='none';ring.style.display='none';document.body.style.cursor='auto';document.querySelectorAll('a,button,input').forEach(el=>el.style.cursor='auto');}
+</script>
+</body>
+</html>
