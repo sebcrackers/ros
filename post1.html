@@ -82,36 +82,12 @@ body,a,button,input{cursor:none}
 .statusbar-item{display:flex;align-items:center;gap:.4rem}
 .statusbar-item .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 4px var(--lime)}
 @media(max-width:768px){.statusbar{font-size:9px;padding:.4rem 1rem}.statusbar-left,.statusbar-right{gap:.8rem}.statusbar-item.hide-mobile{display:none}.nav-links{display:none}.nav-status{display:none}.nav-toggle{display:block}.nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:rgba(5,0,16,.95);padding:1rem 2rem;gap:1rem;border-bottom:1px solid var(--line)}.article-hero{padding:7rem 1.5rem 3rem}.article-body{padding:0 1.5rem 3rem;font-size:20px}}
-
-/* FIX: Content visible by default (no-JS fallback) */
-.article-hero,
-.article-body,
-.related-card {
-    opacity: 1;
-    transform: none;
-}
-
-/* FIX: Progressive enhancement — only hide when JS has loaded */
-.js-loaded .article-hero,
-.js-loaded .article-body,
-.js-loaded .related-card {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 1s var(--ease-quiet), transform 1s var(--ease-quiet);
-}
-
-.js-loaded .reveal.in {
-    opacity: 1;
-    transform: none;
-}
-
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 1s var(--ease-quiet),transform 1s var(--ease-quiet)}
+.reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
 </style>
 </head>
 <body>
-<!-- FIX: Mark body so CSS knows JS is active -->
-<script>document.body.classList.add('js-loaded');</script>
-
 <div class="crt-vignette"></div>
 <div class="scanlines"></div>
 <canvas id="particle-canvas"></canvas>
@@ -305,8 +281,10 @@ body,a,button,input{cursor:none}
 <script>
 const dot=document.getElementById('cursor-dot');const ring=document.getElementById('cursor-ring');
 let mx=0,my=0,rx=0,ry=0;
-window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;});(function tick(){rx+=(mx-rx)*0.15;ry+=(my-ry)*0.15;ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(tick);})();
-document.querySelectorAll('a,button,input').forEach(el=>{el.addEventListener('mouseenter',()=>ring.classList.add('hover'));el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));});document.addEventListener('mousedown',()=>ring.classList.add('click'));document.addEventListener('mouseup',()=>ring.classList.remove('click'));
+window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;});
+(function tick(){rx+=(mx-rx)*0.15;ry+=(my-ry)*0.15;ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(tick);})();
+document.querySelectorAll('a,button,input').forEach(el=>{el.addEventListener('mouseenter',()=>ring.classList.add('hover'));el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));});
+document.addEventListener('mousedown',()=>ring.classList.add('click'));document.addEventListener('mouseup',()=>ring.classList.remove('click'));
 
 const canvas=document.getElementById('particle-canvas');const ctx=canvas.getContext('2d');
 let particles=[];let mouseX=0,mouseY=0;let cw=0,ch=0;
@@ -319,8 +297,8 @@ initParticles();let time=0;
 function animateParticles(){ctx.clearRect(0,0,cw,ch);time+=0.01;particles.forEach(p=>{const dx=mouseX-p.x;const dy=mouseY-p.y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){p.vx+=(dx/dist)*0.02;p.vy+=(dy/dist)*0.02;}p.vx*=0.98;p.vy*=0.98;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cw;if(p.x>cw)p.x=0;if(p.y<0)p.y=ch;if(p.y>ch)p.y=0;const alpha=p.a*(0.5+0.5*Math.sin(time+p.phase));ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color.replace(/[\d.]+\)$/g,alpha+')');ctx.fill();});for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){const dx=particles[i].x-particles[j].x;const dy=particles[i].y-particles[j].y;const d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(157, 78, 221, ${(1-d/100)*0.15})`;ctx.lineWidth=0.5;ctx.stroke();}}}requestAnimationFrame(animateParticles);}
 animateParticles();window.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
 
-const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in');}});},{threshold:0.1,rootMargin:'0px 0px -30px 0px'});
-document.querySelectorAll('.article-hero,.article-body,.related-card').forEach(el=>{el.classList.add('reveal');observer.observe(el);});
+const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in');}});},{threshold:0,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.article-hero,.related-card').forEach(el=>{el.classList.add('reveal');observer.observe(el);});
 
 function updateClock(){const now=new Date();const utc=now.toISOString().substring(11,19);document.getElementById('clock').textContent=utc+' UTC';}
 setInterval(updateClock,1000);updateClock();
