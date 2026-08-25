@@ -1,0 +1,328 @@
+<!-- post4.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE TRADER'S MIND — RO$</title>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=JetBrains+Mono:wght@400;700&display=swap'>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050010;--void-2:#0a0418;--panel:rgba(20,8,43,.6);--purple:#9d4edd;--purple-bright:#c77dff;--lime:#aaff00;--gold:#ffd700;--red:#ff3366;--ink:#f0e6ff;--ink-dim:#9d8db3;--ink-mute:#5d4f73;--line:rgba(157,78,221,.18);--line-bright:rgba(157,78,221,.4);--ease-quiet:cubic-bezier(.22,1,.36,1);--ease-precise:cubic-bezier(.4,0,.2,1)}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--ink);font-family:'VT323',monospace;font-size:20px;line-height:1.5;overflow-x:hidden;min-height:100vh;position:relative;padding-bottom:40px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(90,24,154,.35) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(157,78,221,.2) 0%,transparent 60%),linear-gradient(180deg,#050010 0%,#0a0418 50%,#0a0418 100%);z-index:-2;pointer-events:none}
+.scanlines{position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.18) 3px,rgba(0,0,0,0) 4px);pointer-events:none;z-index:9999;mix-blend-mode:multiply;animation:flicker .15s infinite}
+.crt-vignette{position:fixed;inset:0;pointer-events:none;z-index:9998;background:radial-gradient(ellipse 100% 100% at center,transparent 40%,rgba(0,0,0,.5) 100%)}
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:.97}}
+#particle-canvas{position:fixed;inset:0;z-index:-1;pointer-events:none}
+body,a,button,input{cursor:none}
+#cursor-dot{position:fixed;top:0;left:0;width:6px;height:6px;background:var(--lime);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);box-shadow:0 0 8px var(--lime),0 0 16px rgba(170,255,0,.4)}
+#cursor-ring{position:fixed;top:0;left:0;width:32px;height:32px;border:1px solid var(--purple-bright);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:transform .3s var(--ease-quiet),width .3s,height .3s,border-color .3s,background .3s}
+#cursor-ring.hover{width:56px;height:56px;border-color:var(--lime);background:rgba(170,255,0,.05)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.25rem 2rem;background:rgba(5,0,16,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem}
+.nav-logo{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--ink);text-decoration:none;letter-spacing:.05em}
+.nav-logo .bracket{color:var(--purple-bright)}.nav-logo .accent{color:var(--lime)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.15em;color:var(--ink-dim);text-decoration:none;text-transform:uppercase;transition:color .3s;padding:.25rem 0}
+.nav-links a::before{content:'> ';color:var(--purple);opacity:0;margin-right:-.5rem;transition:opacity .3s,margin-right .3s}
+.nav-links a:hover,.nav-links a.active{color:var(--lime)}
+.nav-links a:hover::before,.nav-links a.active::before{opacity:1;margin-right:0}
+.nav-status{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-dim);display:flex;align-items:center;gap:.5rem}
+.nav-status .dot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.nav-toggle{display:none;background:none;border:1px solid var(--line-bright);color:var(--ink);padding:.5rem .75rem;font-family:'JetBrains Mono',monospace;font-size:12px}
+.article-hero{padding:9rem 2rem 4rem;max-width:900px;margin:0 auto}
+.article-meta{display:flex;gap:1.5rem;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--purple-bright);text-transform:uppercase;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px dashed var(--line-bright)}
+.article-meta span{display:flex;align-items:center;gap:.4rem}
+.article-meta .lime{color:var(--lime)}
+.article-title{font-family:'Press Start 2P',monospace;font-size:clamp(22px,4vw,42px);line-height:1.4;margin-bottom:2rem;letter-spacing:.02em}
+.article-title .purple{color:var(--purple-bright)}.article-title .accent{color:var(--lime)}
+.article-excerpt{font-family:'VT323',monospace;font-size:26px;color:var(--ink-dim);line-height:1.5;max-width:740px;border-left:2px solid var(--lime);padding-left:1.5rem}
+.article-body{max-width:740px;margin:0 auto;padding:0 2rem 4rem;font-family:'VT323',monospace;font-size:22px;line-height:1.6;color:var(--ink)}
+.article-body p{margin-bottom:1.8rem;color:var(--ink)}
+.article-body h2{font-family:'Press Start 2P',monospace;font-size:18px;margin:3rem 0 1.5rem;color:var(--lime);letter-spacing:.02em;line-height:1.5}
+.article-body h2::before{content:'> ';color:var(--purple-bright)}
+.article-body h3{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--purple-bright);margin:2rem 0 1rem}
+.article-body strong{color:var(--lime);font-weight:normal}
+.article-body ul,.article-body ol{margin:0 0 1.8rem 1.5rem}
+.article-body li{margin-bottom:.6rem;color:var(--ink)}
+.article-body li::marker{color:var(--lime)}
+.callout{border:1px solid var(--line-bright);padding:1.5rem 1.5rem 1.5rem 3rem;margin:2rem 0;position:relative;background:rgba(157,78,221,.05)}
+.callout::before{content:'!';position:absolute;top:1.5rem;left:1rem;width:24px;height:24px;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:12px}
+.callout.info{border-color:var(--lime);color:var(--lime)}
+.callout.info::before{content:'i'}
+.callout strong{display:block;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:inherit}
+.callout p{margin:0;color:var(--ink);font-size:20px}
+.related{max-width:1400px;margin:0 auto;padding:4rem 2rem}
+.related-title{font-family:'Press Start 2P',monospace;font-size:18px;margin-bottom:3rem;color:var(--ink);letter-spacing:.02em}
+.related-title::before{content:'// ';color:var(--lime)}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem}
+.related-card{border:1px solid var(--line-bright);background:var(--panel);padding:1.5rem;text-decoration:none;color:var(--ink);transition:all .3s}
+.related-card:hover{border-color:var(--lime);transform:translateY(-3px)}
+.related-card h4{font-family:'Press Start 2P',monospace;font-size:13px;line-height:1.5;margin-bottom:1rem;color:var(--ink)}
+.related-card .meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-mute);letter-spacing:.15em;text-transform:uppercase;display:flex;justify-content:space-between}
+.related-card .meta .read{color:var(--lime)}
+.footer{border-top:1px solid var(--line);padding:4rem 2rem 2rem;background:rgba(5,0,16,.5)}
+.footer-inner{max-width:1400px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:1fr;gap:3rem;margin-bottom:3rem;max-width:400px}
+.footer-logo{font-family:'Press Start 2P',monospace;font-size:14px;margin-bottom:1rem}
+.footer-logo .accent{color:var(--lime)}
+.footer-desc{font-size:18px;color:var(--ink-dim);line-height:1.4;max-width:320px;font-family:'VT323',monospace}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:2rem;border-top:1px dashed var(--line);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;gap:1rem}
+.statusbar{position:fixed;bottom:0;left:0;right:0;background:rgba(5,0,16,.9);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:.5rem 2rem;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--ink-dim);text-transform:uppercase;z-index:99}
+.statusbar-left,.statusbar-right{display:flex;gap:1.5rem;align-items:center}
+.statusbar-item{display:flex;align-items:center;gap:.4rem}
+.statusbar-item .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 4px var(--lime)}
+@media(max-width:768px){.statusbar{font-size:9px;padding:.4rem 1rem}.statusbar-left,.statusbar-right{gap:.8rem}.statusbar-item.hide-mobile{display:none}.nav-links{display:none}.nav-status{display:none}.nav-toggle{display:block}.nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:rgba(5,0,16,.95);padding:1rem 2rem;gap:1rem;border-bottom:1px solid var(--line)}.article-hero{padding:7rem 1.5rem 3rem}.article-body{padding:0 1.5rem 3rem;font-size:20px}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 1s var(--ease-quiet),transform 1s var(--ease-quiet)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="crt-vignette"></div>
+<div class="scanlines"></div>
+<canvas id="particle-canvas"></canvas>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="bracket">[</span>RO<span class="accent">$</span><span class="bracket">]</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+    </ul>
+    <div class="nav-status"><span class="dot"></span><span>ONLINE</span></div>
+    <button class="nav-toggle" id="navToggle">MENU</button>
+  </div>
+</nav>
+
+<article>
+  <div class="article-hero">
+    <div class="article-meta">
+      <span>// POST_004.LOG</span>
+      <span class="lime">2026.01.09</span>
+      <span>10 MIN READ</span>
+      <span class="lime">// PSYCHOLOGY</span>
+    </div>
+    <h1 class="article-title">THE<br><span class="purple">TRADER'S</span> MIND<span class="accent">.</span></h1>
+    <p class="article-excerpt">Mental models and psychological discipline for consistent crypto profits. Risk management, FOMO, and expected value.</p>
+  </div>
+
+  <div class="article-body">
+    <p>Technical analysis and on-chain tools mean nothing if your psychology fails under pressure. The crypto market is designed to extract money from emotionally reactive participants. This guide covers the mental frameworks, risk management principles, and behavioral tactics that separate profitable traders from perpetual losers.</p>
+
+    <h2>The Crypto Market as a Psychological Arena</h2>
+    <p>Crypto trades 24/7. There are no circuit breakers, no closing bells, no off-hours to cool down. The market is a continuous psychological experiment—and most participants are unwitting subjects.</p>
+    <p>Understanding this reality is step one. The market doesn't care about your conviction, your research, or how much you "need" this trade to work. It cares about supply, demand, and who blinks first.</p>
+
+    <h2>Core Mental Models for Crypto Traders</h2>
+    <h3>1. Expected Value, Not Win Rate</h3>
+    <p>Amateurs obsess over win rate. Professionals obsess over expected value (EV).</p>
+    <p><strong>Expected Value = (Probability of Win × Average Win) − (Probability of Loss × Average Loss)</strong></p>
+    <p>A strategy with a 30% win rate can be wildly profitable if your wins are 10x your losses. Conversely, a 70% win rate strategy can bankrupt you if your losses are oversized.</p>
+    <p><strong>Application:</strong> Stop chasing "safe" trades with tiny upside. Start structuring trades where you're wrong small and right big. This is the mathematical foundation of trend-following and asymmetric bet strategies.</p>
+
+    <h3>2. The Asymmetric Bet Framework</h3>
+    <p>Crypto is one of the few markets where 100x moves happen regularly. Your job is to position for asymmetry. Structure every trade with three numbers:</p>
+    <ul>
+      <li><strong>Entry:</strong> Where you buy</li>
+      <li><strong>Invalidation:</strong> Where you're proven wrong (stop loss)</li>
+      <li><strong>Target:</strong> Where you take profit (or partial profit)</li>
+    </ul>
+    <p>If your invalidation is 5% below entry and your target is 50% above, you have a 10:1 risk/reward setup. You can be wrong 80% of the time and still make money.</p>
+    <p><strong>The rule:</strong> Never enter a trade where the potential reward is less than 3x the risk. This single filter eliminates most bad decisions.</p>
+
+    <h3>3. Process Over Outcome</h3>
+    <p>A good process can produce a bad outcome. A bad process can produce a good outcome (temporarily). Over 1,000 trades, only the process matters.</p>
+    <p><strong>Document your process:</strong></p>
+    <ul>
+      <li>What was your thesis?</li>
+      <li>What data supported it?</li>
+      <li>What would prove you wrong?</li>
+      <li>What was your position size?</li>
+      <li>What was your emotional state?</li>
+    </ul>
+    <p>Review this weekly. If you made money by violating your process, that's a loss in disguise—it reinforces destructive behavior.</p>
+
+    <h2>Risk Management: The Only Thing That Matters</h2>
+    <h3>Position Sizing</h3>
+    <p>Never risk more than 1–2% of your total portfolio on a single trade. This sounds conservative, but it's what keeps you alive during inevitable losing streaks.</p>
+    <p><strong>The Kelly Criterion (simplified):</strong><br>If you have a 60% win rate and 2:1 risk/reward, optimal bet size is roughly 10% of bankroll. In practice, use "half-Kelly" (5%) because crypto volatility destroys theoretical models.</p>
+    <p>For most traders: 1–2% per trade, 5% maximum portfolio exposure to any single token.</p>
+
+    <h3>The Stop Loss Is Non-Negotiable</h3>
+    <p>Every trade needs a predetermined invalidation point. Not a mental stop—a hard stop, set before you enter.</p>
+    <p><strong>Why mental stops fail:</strong></p>
+    <ul>
+      <li>You move the stop when price approaches it ("just a little more room")</li>
+      <li>You remove the stop entirely ("it'll come back")</li>
+      <li>You average down into a losing position, turning a small loss into a portfolio-destroying one</li>
+    </ul>
+    <p>Set it and forget it. If the stop hits, the thesis was wrong. Move on.</p>
+
+    <h3>Portfolio Heat</h3>
+    <p>"Heat" is your total portfolio drawdown at any moment. Never let portfolio heat exceed 10–15%.</p>
+    <p><strong>Example:</strong> If you have 10 positions at 2% risk each, and all 10 hit their stops simultaneously, you lose 20% of your portfolio. That's too much heat. Reduce position sizes or correlation between positions.</p>
+
+    <h2>Emotional Traps and How to Escape Them</h2>
+    <h3>FOMO (Fear of Missing Out)</h3>
+    <p>FOMO is the #1 wealth destroyer in crypto. It manifests as:</p>
+    <ul>
+      <li>Buying parabolic pumps because "everyone else is getting rich"</li>
+      <li>Increasing position size because a trade is "too obvious"</li>
+      <li>Entering without a stop because "this one can't go down"</li>
+    </ul>
+    <p><strong>Antidote:</strong> Predefine your setups. If a move doesn't fit your criteria, you don't take it—regardless of how high it goes. There will always be another trade. Your capital is finite; FOMO opportunities are infinite.</p>
+
+    <h3>Revenge Trading</h3>
+    <p>After a loss, the urge to "make it back" immediately is overwhelming. This leads to:</p>
+    <ul>
+      <li>Oversized positions</li>
+      <li>Ignored stop losses</li>
+      <li>Trades outside your strategy</li>
+    </ul>
+    <p><strong>Antidote:</strong> Implement a "cooling off" rule. After any loss >2% of portfolio, step away for 24 hours. No exceptions.</p>
+
+    <h3>Confirmation Bias</h3>
+    <p>You research a token, form a bullish thesis, then only seek information that supports it. You ignore red flags. You dismiss bearish arguments.</p>
+    <p><strong>Antidote:</strong> Before entering any trade, write down three reasons the trade could fail. Force yourself to argue the bear case. If you can't find legitimate risks, you haven't researched enough.</p>
+
+    <h3>Anchoring</h3>
+    <p>You bought a token at $10. It drops to $5. You refuse to sell because "I need to break even." The market doesn't know your entry price. Your cost basis is irrelevant to future price action.</p>
+    <p><strong>Antidote:</strong> Evaluate every position daily as if you didn't own it. Would you buy it today at the current price? If not, sell.</p>
+
+    <h3>The Sunk Cost Fallacy</h3>
+    <p>You've spent 20 hours researching a project. You joined the Discord, read the whitepaper, followed the founders. The token launches and immediately dumps. You hold because "I invested so much time."</p>
+    <p><strong>Antidote:</strong> Time spent researching is a sunk cost. The only relevant question is: What happens from this point forward?</p>
+
+    <h2>Building a Trading Routine</h2>
+    <p><strong>Pre-Market Preparation (Daily)</strong></p>
+    <ul>
+      <li>Review overnight price action and news</li>
+      <li>Update your watchlist based on new setups</li>
+      <li>Set alerts for key levels</li>
+      <li>Define your maximum risk for the day (e.g., "I will not lose more than 3% today")</li>
+    </ul>
+    <p><strong>During Market Hours</strong></p>
+    <ul>
+      <li>Only trade your predefined setups</li>
+      <li>Log every trade immediately upon entry</li>
+      <li>Do not check P&L constantly—check the chart, not your balance</li>
+      <li>If you hit your daily loss limit, shut down</li>
+    </ul>
+    <p><strong>Post-Market Review (Daily)</strong></p>
+    <ul>
+      <li>Review all trades taken</li>
+      <li>Note deviations from process</li>
+      <li>Update your trading journal</li>
+      <li>Identify emotional triggers that appeared</li>
+    </ul>
+    <p><strong>Weekly Review</strong></p>
+    <ul>
+      <li>Calculate win rate, average win, average loss, and expectancy</li>
+      <li>Identify your best and worst setups</li>
+      <li>Adjust position sizing if variance is too high</li>
+      <li>Study charts of missed opportunities—were they in your plan?</li>
+    </ul>
+
+    <h2>The Role of Physical and Mental Health</h2>
+    <p>Trading is a performance activity. You cannot perform optimally while sleep-deprived, hungover, or emotionally distressed.</p>
+    <p><strong>Non-negotiables:</strong></p>
+    <ul>
+      <li>7+ hours of sleep</li>
+      <li>Physical exercise (trading is sedentary; your body needs movement)</li>
+      <li>Limited caffeine after 2 PM (crypto never sleeps, but you should)</li>
+      <li>No trading under the influence of alcohol, cannabis, or extreme emotion</li>
+    </ul>
+    <p><strong>The "HALT" Rule:</strong><br>Never trade when you're Hungry, Angry, Lonely, or Tired. Your decision-making degrades measurably in these states.</p>
+
+    <h2>The Long Game</h2>
+    <p>Most traders blow up within 90 days. The survivors last a year. The profitable ones last a decade.</p>
+    <p>Your goal isn't to get rich this month. It's to still be in the game five years from now, compounding returns, while 99% of participants have self-destructed.</p>
+    <p>The paradox: The less you care about any single trade, the better you perform. Detach from individual outcomes. Attach to the process.</p>
+
+    <div class="callout info">
+      <strong>FINAL DISPATCH</strong>
+      <p>Technical skills get you into trades. Psychological discipline keeps you alive. Risk management ensures you survive the inevitable bad streaks. Together, they form the foundation of a sustainable trading career. The market will test you. It will offer you false confidence after a winning streak and crush your spirit during drawdowns. Your only defense is a system you trust more than your emotions. Build the system. Trust the system. Execute the system.</p>
+    </div>
+  </div>
+</article>
+
+<section class="related">
+  <h2 class="related-title">RELATED DISPATCHES</h2>
+  <div class="related-grid">
+    <a href="post1.html" class="related-card">
+      <h4>The Complete Guide to Memecoin Trading</h4>
+      <div class="meta"><span>2026.01.18</span><span class="read">15 MIN</span></div>
+    </a>
+    <a href="post2.html" class="related-card">
+      <h4>The Airdrop Hunter's Playbook</h4>
+      <div class="meta"><span>2026.01.15</span><span class="read">12 MIN</span></div>
+    </a>
+    <a href="post3.html" class="related-card">
+      <h4>On-Chain Intelligence</h4>
+      <div class="meta"><span>2026.01.12</span><span class="read">15 MIN</span></div>
+    </a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">RO<span class="accent">$</span></div>
+        <p class="footer-desc">A field guide to on-chain wealth. Documented plays, missed calls, and hard-won lessons from the Solana trenches.</p>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 RO$ — ALL RIGHTS RESERVED</span><span>v2.4.7 — LAST BUILD: 2026.01.18</span></div>
+  </div>
+</footer>
+
+<div class="statusbar">
+  <div class="statusbar-left">
+    <span class="statusbar-item"><span class="dot"></span> CONNECTED</span>
+    <span class="statusbar-item hide-mobile">POST_004.LOG</span>
+    <span class="statusbar-item hide-mobile">READ: 10 MIN</span>
+  </div>
+  <div class="statusbar-right">
+    <span class="statusbar-item hide-mobile">UTF-8</span>
+    <span class="statusbar-item" id="clock">00:00:00 UTC</span>
+  </div>
+</div>
+
+<script>
+const dot=document.getElementById('cursor-dot');const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;});
+(function tick(){rx+=(mx-rx)*0.15;ry+=(my-ry)*0.15;ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(tick);})();
+document.querySelectorAll('a,button,input').forEach(el=>{el.addEventListener('mouseenter',()=>ring.classList.add('hover'));el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));});
+document.addEventListener('mousedown',()=>ring.classList.add('click'));document.addEventListener('mouseup',()=>ring.classList.remove('click'));
+
+const canvas=document.getElementById('particle-canvas');const ctx=canvas.getContext('2d');
+let particles=[];let mouseX=0,mouseY=0;let cw=0,ch=0;
+function resizeCanvas(){cw=window.innerWidth;ch=window.innerHeight;canvas.width=cw;canvas.height=ch;}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+const PCOUNT=window.innerWidth<768?50:100;
+const PCOLORS=['rgba(157, 78, 221, 0.7)','rgba(199, 125, 255, 0.5)','rgba(170, 255, 0, 0.4)'];
+function initParticles(){particles=[];for(let i=0;i<PCOUNT;i++){particles.push({x:Math.random()*cw,y:Math.random()*ch,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.8+0.4,a:Math.random()*0.5+0.2,color:PCOLORS[Math.floor(Math.random()*PCOLORS.length)],phase:Math.random()*Math.PI*2});}}
+initParticles();let time=0;
+function animateParticles(){ctx.clearRect(0,0,cw,ch);time+=0.01;particles.forEach(p=>{const dx=mouseX-p.x;const dy=mouseY-p.y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){p.vx+=(dx/dist)*0.02;p.vy+=(dy/dist)*0.02;}p.vx*=0.98;p.vy*=0.98;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cw;if(p.x>cw)p.x=0;if(p.y<0)p.y=ch;if(p.y>ch)p.y=0;const alpha=p.a*(0.5+0.5*Math.sin(time+p.phase));ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color.replace(/[\d.]+\)$/g,alpha+')');ctx.fill();});for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){const dx=particles[i].x-particles[j].x;const dy=particles[i].y-particles[j].y;const d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(157, 78, 221, ${(1-d/100)*0.15})`;ctx.lineWidth=0.5;ctx.stroke();}}}requestAnimationFrame(animateParticles);}
+animateParticles();window.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
+
+const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in');}});},{threshold:0.1,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.article-hero,.article-body,.related-card').forEach(el=>{el.classList.add('reveal');observer.observe(el);});
+
+function updateClock(){const now=new Date();const utc=now.toISOString().substring(11,19);document.getElementById('clock').textContent=utc+' UTC';}
+setInterval(updateClock,1000);updateClock();
+const navToggle=document.getElementById('navToggle');const navLinks=document.getElementById('navLinks');
+navToggle.addEventListener('click',()=>navLinks.classList.toggle('open'));
+if('ontouchstart' in window){dot.style.display='none';ring.style.display='none';document.body.style.cursor='auto';document.querySelectorAll('a,button,input').forEach(el=>el.style.cursor='auto');}
+</script>
+</body>
+</html>
