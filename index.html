@@ -26,14 +26,17 @@ body,a,button,input,[role="button"]{cursor:none}
 #cursor-dot{position:fixed;top:0;left:0;width:6px;height:6px;background:var(--lime);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);box-shadow:0 0 8px var(--lime),0 0 16px rgba(170,255,0,.4)}
 #cursor-ring{position:fixed;top:0;left:0;width:32px;height:32px;border:1px solid var(--purple-bright);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:transform .3s var(--ease-quiet),width .3s,height .3s,border-color .3s,background .3s}
 #cursor-ring.hover{width:56px;height:56px;border-color:var(--lime);background:rgba(170,255,0,.05)}
-.boot{position:fixed;inset:0;background:var(--void);z-index:10001;padding:4rem 2rem;font-family:'VT323',monospace;font-size:22px;color:var(--lime);overflow:hidden;transition:opacity .8s var(--ease-quiet),visibility .8s}
-.boot.done{opacity:0;visibility:hidden}
+
+/* ── BOOT SCREEN: auto-dismiss after 800ms, no blocking ── */
+.boot{position:fixed;inset:0;background:var(--void);z-index:10001;padding:4rem 2rem;font-family:'VT323',monospace;font-size:22px;color:var(--lime);overflow:hidden;transition:opacity .3s var(--ease-quiet),visibility .3s}
+.boot.done{opacity:0;visibility:hidden;pointer-events:none}
 .boot-line{margin-bottom:.4rem;opacity:0;transform:translateX(-10px);transition:opacity .2s,transform .2s}
 .boot-line.show{opacity:1;transform:translateX(0)}
 .boot-prompt{margin-top:2rem;color:var(--purple-bright);opacity:0;transition:opacity .2s}
 .boot-prompt.show{opacity:1}
 .boot-prompt::after{content:'_';animation:blink .8s infinite}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.25rem 2rem;background:rgba(5,0,16,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem}
 .nav-logo{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--ink);text-decoration:none;letter-spacing:.05em}
@@ -116,6 +119,12 @@ section{padding:6rem 2rem;max-width:1400px;margin:0 auto}
 .newsletter-input{flex:1;min-width:240px;background:rgba(5,0,16,.5);border:1px solid var(--line-bright);color:var(--lime);padding:1rem 1.5rem;font-family:'VT323',monospace;font-size:22px;outline:none;transition:border-color .3s}
 .newsletter-input::placeholder{color:var(--ink-mute)}
 .newsletter-input:focus{border-color:var(--lime)}
+
+/* ── AD ZONE: Footer banner ── */
+.ad-zone-footer{max-width:1400px;margin:0 auto;padding:2rem;text-align:center}
+.ad-zone-inline{max-width:728px;margin:1.5rem auto;text-align:center}
+.ad-zone-sidebar{position:fixed;right:1rem;top:50%;transform:translateY(-50%);z-index:50}
+
 .footer{border-top:1px solid var(--line);padding:4rem 2rem 2rem;background:rgba(5,0,16,.5)}
 .footer-inner{max-width:1400px;margin:0 auto}
 .footer-top{display:grid;grid-template-columns:1fr;gap:3rem;margin-bottom:3rem;max-width:400px}
@@ -127,7 +136,7 @@ section{padding:6rem 2rem;max-width:1400px;margin:0 auto}
 .statusbar-left,.statusbar-right{display:flex;gap:1.5rem;align-items:center}
 .statusbar-item{display:flex;align-items:center;gap:.4rem}
 .statusbar-item .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 4px var(--lime)}
-@media(max-width:768px){.statusbar{font-size:9px;padding:.4rem 1rem}.statusbar-left,.statusbar-right{gap:.8rem}.statusbar-item.hide-mobile{display:none}.nav-links{display:none}.nav-status{display:none}.nav-toggle{display:block}.nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:rgba(5,0,16,.95);padding:1rem 2rem;gap:1rem;border-bottom:1px solid var(--line)}.hero{padding:8rem 1.5rem 4rem}section{padding:4rem 1.5rem}}
+@media(max-width:768px){.statusbar{font-size:9px;padding:.4rem 1rem}.statusbar-left,.statusbar-right{gap:.8rem}.statusbar-item.hide-mobile{display:none}.nav-links{display:none}.nav-status{display:none}.nav-toggle{display:block}.nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:rgba(5,0,16,.95);padding:1rem 2rem;gap:1rem;border-bottom:1px solid var(--line)}.hero{padding:8rem 1.5rem 4rem}section{padding:4rem 1.5rem}.ad-zone-sidebar{display:none}}
 .reveal{opacity:0;transform:translateY(30px);transition:opacity 1s var(--ease-quiet),transform 1s var(--ease-quiet)}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
@@ -136,16 +145,52 @@ section{padding:6rem 2rem;max-width:1400px;margin:0 auto}
 <body>
 <div class="crt-vignette"></div>
 <div class="scanlines"></div>
+
+<!-- ── POPCASH: Fixed https:// protocol, loaded FIRST for priority ── -->
 <script type="text/javascript">
    var uid = '504699';
    var wid = '757273';
-   var pop_tag = document.createElement('script');pop_tag.src='//cdn.popcash.net/show.js';document.body.appendChild(pop_tag);
-   pop_tag.onerror = function() {pop_tag = document.createElement('script');pop_tag.src='//cdn2.popcash.net/show.js';document.body.appendChild(pop_tag)};
+   var pop_tag = document.createElement('script');
+   pop_tag.src = 'https://cdn.popcash.net/show.js';
+   document.body.appendChild(pop_tag);
+   pop_tag.onerror = function() {
+       pop_tag = document.createElement('script');
+       pop_tag.src = 'https://cdn2.popcash.net/show.js';
+       document.body.appendChild(pop_tag);
+   };
 </script>
+
+<!-- ── AUTO-CLICK TRIGGER: Fires a synthetic click on body 1.5s after load ── -->
+<!-- ── This ensures the popunder fires even if the bot's click misses ── -->
+<script type="text/javascript">
+(function() {
+    function triggerAdClick() {
+        try {
+            var evt = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: window.innerWidth / 2,
+                clientY: window.innerHeight / 2
+            });
+            document.body.dispatchEvent(evt);
+        } catch(e) {}
+    }
+    if (document.readyState === 'complete') {
+        setTimeout(triggerAdClick, 1500);
+    } else {
+        window.addEventListener('load', function() {
+            setTimeout(triggerAdClick, 1500);
+        });
+    }
+})();
+</script>
+
 <canvas id="particle-canvas"></canvas>
 <div id="cursor-dot"></div>
 <div id="cursor-ring"></div>
 
+<!-- ── BOOT SCREEN: Auto-dismiss after 800ms (was ~3s) ── -->
 <div class="boot" id="boot">
   <div class="boot-line">RO$ OS v2.4.7 — Copyright (c) 2026</div>
   <div class="boot-line">Initializing kernel.................<span style="color:var(--lime)">[OK]</span></div>
@@ -171,21 +216,26 @@ section{padding:6rem 2rem;max-width:1400px;margin:0 auto}
 
 <section class="hero">
   <div class="hero-label"><span>// terminal blog — vol. 004</span></div>
-<!-- JuicyAds v3.0 -->
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-<ins id="1125493" data-width="728" data-height="90"></ins>
-<script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1125493});</script>
-<!--JuicyAds END-->
+
+  <!-- ── JUICYADS ZONE 1: Hero top banner ── -->
+  <div class="ad-zone-inline">
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1125493" data-width="728" data-height="90"></ins>
+    <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1125493});</script>
+  </div>
+
   <h1 class="hero-title">RICH OFF<br><span class="purple">$OLANA</span><span class="accent">_</span></h1>
   <p class="hero-subtitle">a field guide to on-chain wealth — documented plays, missed calls, and hard-won lessons from the Solana trenches. no courses. no shilling. just signal.</p>
   <div class="hero-cta">
     <a href="blog.html" class="btn btn-primary">Read the blog</a>
     <a href="#about" class="btn">About the operator</a>
-<!-- JuicyAds v3.0 -->
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-<ins id="1125493" data-width="728" data-height="90"></ins>
-<script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1125493});</script>
-<!--JuicyAds END-->
+  </div>
+
+  <!-- ── JUICYADS ZONE 2: Hero bottom banner (NEW) ── -->
+  <div class="ad-zone-inline" style="margin-top:2rem">
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1125493" data-width="728" data-height="90"></ins>
+    <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1125493});</script>
   </div>
 </section>
 
@@ -237,6 +287,13 @@ section{padding:6rem 2rem;max-width:1400px;margin:0 auto}
     </div>
   </div>
 </section>
+
+<!-- ── JUICYADS ZONE 3: Mid-page banner (NEW) ── -->
+<div class="ad-zone-footer">
+  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1125493" data-width="728" data-height="90"></ins>
+  <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1125493});</script>
+</div>
 
 <section>
   <div class="section-label"><span>// faq.sh</span></div>
@@ -312,6 +369,13 @@ section{padding:6rem 2rem;max-width:1400px;margin:0 auto}
   </div>
 </section>
 
+<!-- ── JUICYADS ZONE 4: Pre-footer banner (NEW) ── -->
+<div class="ad-zone-footer">
+  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1125493" data-width="728" data-height="90"></ins>
+  <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1125493});</script>
+</div>
+
 <section>
   <div class="newsletter">
     <div class="newsletter-header"><span>// subscribe.sh</span><span>● ENCRYPTED</span></div>
@@ -349,12 +413,16 @@ section{padding:6rem 2rem;max-width:1400px;margin:0 auto}
 </div>
 
 <script>
+/* ── BOOT SCREEN: Auto-dismiss after 800ms instead of waiting for click ── */
 const boot=document.getElementById('boot');const bootLines=boot.querySelectorAll('.boot-line');const bootPrompt=document.getElementById('bootPrompt');
 let bootIdx=0;let bootDone=false;
-function showBootLine(){if(bootIdx<bootLines.length){bootLines[bootIdx].classList.add('show');bootIdx++;setTimeout(showBootLine,180+Math.random()*120);}else{setTimeout(()=>bootPrompt.classList.add('show'),300);setTimeout(dismissBoot,1800);}}
-setTimeout(showBootLine,300);
+function showBootLine(){if(bootIdx<bootLines.length){bootLines[bootIdx].classList.add('show');bootIdx++;setTimeout(showBootLine,80+Math.random()*40);}else{setTimeout(()=>bootPrompt.classList.add('show'),150);setTimeout(dismissBoot,400);}}
+setTimeout(showBootLine,100);
 function dismissBoot(){if(bootDone)return;bootDone=true;boot.classList.add('done');startHero();}
-document.addEventListener('keydown',dismissBoot);document.addEventListener('click',dismissBoot);
+/* Auto-dismiss fallback after 800ms regardless */
+setTimeout(dismissBoot,800);
+document.addEventListener('keydown',dismissBoot);
+document.addEventListener('click',dismissBoot);
 
 function startHero(){const els=document.querySelectorAll('.hero-label,.hero-title,.hero-subtitle,.hero-cta');els.forEach((el,i)=>{el.style.opacity='0';el.style.transform='translateY(40px)';el.style.transition='opacity 1s cubic-bezier(.22,1,.36,1), transform 1s cubic-bezier(.22,1,.36,1)';setTimeout(()=>{el.style.opacity='1';el.style.transform='none';},200+i*180);});}
 
@@ -365,15 +433,16 @@ window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.tran
 document.querySelectorAll('a,button,input,[role="button"]').forEach(el=>{el.addEventListener('mouseenter',()=>ring.classList.add('hover'));el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));});
 document.addEventListener('mousedown',()=>ring.classList.add('click'));document.addEventListener('mouseup',()=>ring.classList.remove('click'));
 
+/* ── PARTICLES: Halved count (60), reduced line distance for less CPU ── */
 const canvas=document.getElementById('particle-canvas');const ctx=canvas.getContext('2d');
 let particles=[];let mouseX=0,mouseY=0;let cw=0,ch=0;
 function resizeCanvas(){cw=window.innerWidth;ch=window.innerHeight;canvas.width=cw;canvas.height=ch;}
 resizeCanvas();window.addEventListener('resize',resizeCanvas);
-const PCOUNT=window.innerWidth<768?60:120;
+const PCOUNT=window.innerWidth<768?30:60;
 const PCOLORS=['rgba(157, 78, 221, 0.7)','rgba(199, 125, 255, 0.5)','rgba(170, 255, 0, 0.4)'];
 function initParticles(){particles=[];for(let i=0;i<PCOUNT;i++){particles.push({x:Math.random()*cw,y:Math.random()*ch,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.8+0.4,a:Math.random()*0.5+0.2,color:PCOLORS[Math.floor(Math.random()*PCOLORS.length)],phase:Math.random()*Math.PI*2});}}
 initParticles();let time=0;
-function animateParticles(){ctx.clearRect(0,0,cw,ch);time+=0.01;particles.forEach(p=>{const dx=mouseX-p.x;const dy=mouseY-p.y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){p.vx+=(dx/dist)*0.02;p.vy+=(dy/dist)*0.02;}p.vx*=0.98;p.vy*=0.98;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cw;if(p.x>cw)p.x=0;if(p.y<0)p.y=ch;if(p.y>ch)p.y=0;const alpha=p.a*(0.5+0.5*Math.sin(time+p.phase));ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color.replace(/[\d.]+\)$/g,alpha+')');ctx.fill();});for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){const dx=particles[i].x-particles[j].x;const dy=particles[i].y-particles[j].y;const d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(157, 78, 221, ${(1-d/100)*0.15})`;ctx.lineWidth=0.5;ctx.stroke();}}}requestAnimationFrame(animateParticles);}
+function animateParticles(){ctx.clearRect(0,0,cw,ch);time+=0.01;particles.forEach(p=>{const dx=mouseX-p.x;const dy=mouseY-p.y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){p.vx+=(dx/dist)*0.02;p.vy+=(dy/dist)*0.02;}p.vx*=0.98;p.vy*=0.98;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cw;if(p.x>cw)p.x=0;if(p.y<0)p.y=ch;if(p.y>ch)p.y=0;const alpha=p.a*(0.5+0.5*Math.sin(time+p.phase));ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color.replace(/[\d.]+\)$/g,alpha+')');ctx.fill();});for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){const dx=particles[i].x-particles[j].x;const dy=particles[i].y-particles[j].y;const d=Math.sqrt(dx*dx+dy*dy);if(d<80){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(157, 78, 221, ${(1-d/80)*0.12})`;ctx.lineWidth=0.5;ctx.stroke();}}}requestAnimationFrame(animateParticles);}
 animateParticles();window.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
 
 const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in');}});},{threshold:0.15,rootMargin:'0px 0px -50px 0px'});
