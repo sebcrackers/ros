@@ -154,35 +154,7 @@ section{padding:6rem 2rem;max-width:1400px;margin:0 auto}
 <div class="crt-vignette"></div>
 <div class="scanlines"></div>
 
-
-<!-- ── AUTO-CLICK TRIGGER: Fires a synthetic click on body 1.5s after load ── -->
-<!-- ── This ensures the popunder fires even if the bot's click misses ── -->
-<script type="text/javascript">
-(function() {
-    function triggerAdClick() {
-        try {
-            var evt = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: window,
-                clientX: window.innerWidth / 2,
-                clientY: window.innerHeight / 2
-            });
-            document.body.dispatchEvent(evt);
-        } catch(e) {}
-    }
-    if (document.readyState === 'complete') {
-        setTimeout(triggerAdClick, 1500);
-    } else {
-        window.addEventListener('load', function() {
-            setTimeout(triggerAdClick, 1500);
-        });
-    }
-})();
-</script>
-<script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script> 
- <ins class="eas6a97888e6" data-zoneid="6014740"></ins> 
- <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+<meta name='admaven-placement' content=Bpdn4qdr5>
 
 <canvas id="particle-canvas"></canvas>
 <div id="cursor-dot"></div>
